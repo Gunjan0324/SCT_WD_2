@@ -1,10 +1,4 @@
-Great! Based on your repo name (`SCT_WD_2`) and project content (the **Interactive Stopwatch**), here’s a **complete, copy-paste-ready `README.md`** tailored for your GitHub repo at:
 
-👉 [https://github.com/Gunjan0324/SCT\_WD\_2](https://github.com/Gunjan0324/SCT_WD_2)
-
----
-
-````markdown
 # ⏱️ Interactive Stopwatch
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/Gunjan0324/SCT_WD_2)
