@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Stopwatch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .stopwatch-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            min-width: 400px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .stopwatch-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .time-display {
+            font-size: 4rem;
+            font-weight: 300;
+            color: #2c3e50;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn-pause {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn-pause:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-lap {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+        }
+
+        .btn-lap:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .lap-times {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .lap-times h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 400;
+        }
+
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .lap-item:hover {
+            transform: translateX(5px);
+        }
+
+        .lap-number {
+            font-weight: 600;
+            color: #9b59b6;
+        }
+
+        .lap-time {
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .lap-split {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-family: 'Courier New', monospace;
+        }
+
+        .no-laps {
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .stopwatch-container {
+                padding: 20px;
+                min-width: auto;
+            }
+
+            .time-display {
+                font-size: 3rem;
+            }
+
+            .stopwatch-title {
+                font-size: 2rem;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                min-width: 80px;
+                padding: 10px 16px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Pulse animation for running state */
+        .running .time-display {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch-container" id="stopwatchContainer">
+        <h1 class="stopwatch-title">STOPWATCH</h1>
+        
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+        
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn" onclick="startStopwatch()">Start</button>
+            <button class="btn btn-pause" id="pauseBtn" onclick="pauseStopwatch()" disabled>Pause</button>
+            <button class="btn btn-lap" id="lapBtn" onclick="recordLap()" disabled>Lap</button>
+            <button class="btn btn-reset" id="resetBtn" onclick="resetStopwatch()">Reset</button>
+        </div>
+        
+        <div class="lap-times">
+            <h3>Lap Times</h3>
+            <div id="lapList">
+                <div class="no-laps">No lap times recorded</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval = null;
+        let isRunning = false;
+        let lapCount = 0;
+        let lastLapTime = 0;
+
+        const timeDisplay = document.getElementById('timeDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapList = document.getElementById('lapList');
+        const container = document.getElementById('stopwatchContainer');
+
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = Math.floor((ms % 1000) / 10);
+            
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            timeDisplay.textContent = formatTime(elapsedTime);
+        }
+
+        function startStopwatch() {
+            if (!isRunning) {
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    updateDisplay();
+                }, 10);
+                
+                isRunning = true;
+                container.classList.add('running');
+                
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                lapBtn.disabled = false;
+                
+                startBtn.textContent = 'Running';
+            }
+        }
+
+        function pauseStopwatch() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                container.classList.remove('running');
+                
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                lapBtn.disabled = true;
+                
+                startBtn.textContent = 'Resume';
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            elapsedTime = 0;
+            lapCount = 0;
+            lastLapTime = 0;
+            
+            container.classList.remove('running');
+            updateDisplay();
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            lapBtn.disabled = true;
+            startBtn.textContent = 'Start';
+            
+            // Clear lap times
+            lapList.innerHTML = '<div class="no-laps">No lap times recorded</div>';
+        }
+
+        function recordLap() {
+            if (isRunning) {
+                lapCount++;
+                const currentTime = elapsedTime;
+                const splitTime = currentTime - lastLapTime;
+                
+                // Remove "no laps" message if it exists
+                if (lapList.querySelector('.no-laps')) {
+                    lapList.innerHTML = '';
+                }
+                
+                const lapItem = document.createElement('div');
+                lapItem.className = 'lap-item';
+                lapItem.innerHTML = `
+                    <span class="lap-number">Lap ${lapCount}</span>
+                    <div>
+                        <div class="lap-time">${formatTime(currentTime)}</div>
+                        <div class="lap-split">+${formatTime(splitTime)}</div>
+                    </div>
+                `;
+                
+                // Insert at the beginning to show newest laps first
+                lapList.insertBefore(lapItem, lapList.firstChild);
+                
+                lastLapTime = currentTime;
+                
+                // Add a subtle animation
+                lapItem.style.opacity = '0';
+                lapItem.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    lapItem.style.transition = 'all 0.3s ease';
+                    lapItem.style.opacity = '1';
+                    lapItem.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    if (isRunning) {
+                        pauseStopwatch();
+                    } else {
+                        startStopwatch();
+                    }
+                    break;
+                case 'KeyL':
+                    e.preventDefault();
+                    if (isRunning) {
+                        recordLap();
+                    }
+                    break;
+                case 'KeyR':
+                    e.preventDefault();
+                    resetStopwatch();
+                    break;
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
