@@ -60,11 +60,6 @@ This project is part of the Web Development coursework under SCT_WD_2.
 
 ---
 
-## 🖼️ Demo Preview
-
-> *(Optional)* Add screenshots or a screen recording here for extra polish.
-
----
 
 ## 📄 License
 
